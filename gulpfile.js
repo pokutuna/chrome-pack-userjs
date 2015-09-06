@@ -4,7 +4,8 @@ var gulp        = require('gulp'),
     combineJson = require('gulp-jsoncombine'),
     fs          = require('fs'),
     exec        = require('child_process').exec,
-    Promise     = require('es6-promise').Promise;
+    Promise     = require('es6-promise').Promise,
+    typescript  = require('gulp-typescript');
 
 
 gulp.task('manifest', ['_content_script_partfiles'], function() {
@@ -61,4 +62,11 @@ gulp.task('copy-js', function() {
         .pipe(gulp.dest('app/'));
 });
 
-gulp.task('default', ['copy-js', 'manifest']);
+var tsProject = typescript.createProject({ module: 'commonjs', sortOutput: true });
+gulp.task('typescript', function() {
+    return gulp.src('src/**/*.ts')
+        .pipe(typescript(tsProject))
+        .js.pipe(gulp.dest('app/'));
+});
+
+gulp.task('default', ['copy-js', 'typescript', 'manifest']);
