@@ -55,3 +55,10 @@ gulp.task('_content_script_partfiles', function() {
         }))
         .pipe(gulp.dest('app/tmp/'));
 });
+
+gulp.task('copy-js', function() {
+    return gulp.src('src/**/*.js', { base : 'src' })
+        .pipe(gulp.dest('app/'));
+});
+
+gulp.task('default', ['copy-js', 'manifest']);
