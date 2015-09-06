@@ -1,0 +1,8 @@
+{
+    "manifest_version": 2,
+
+    "name": "chrome-pack-userjs",
+    "version": "1.0.0",
+    "description": "example to pack userjs files to a chrome extension",
+    "content_scripts": []
+}
