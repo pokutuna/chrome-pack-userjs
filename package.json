@@ -18,8 +18,11 @@
   "homepage": "https://github.com/pokutuna/chrome-pack-userjs",
   "devDependencies": {
     "browserify": "^11.0.1",
+    "es6-promise": "^3.0.2",
     "gulp": "^3.9.0",
+    "gulp-json-editor": "^2.2.1",
     "gulp-typescript": "^2.8.2",
+    "gulp-util": "^3.0.6",
     "zip": "^1.2.0"
   }
 }
