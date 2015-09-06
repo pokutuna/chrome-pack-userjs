@@ -1,7 +1,6 @@
 {
     "matches": [
-        "https://github.com/*/chrome-pack-userjs",
-        "https://github.com/"
+        "https://github.com/*/chrome-pack-userjs"
     ],
     "js": ["sample2-ts/sample2-ts.js"]
 }

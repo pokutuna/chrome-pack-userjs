@@ -10,7 +10,6 @@ var gulp        = require('gulp'),
     typescript  = require('gulp-typescript'),
     browserify  = require('browserify');
 
-
 gulp.task('manifest', ['_content_script_partfiles'], function() {
     return Promise.all([version(), contentScript()]).then(function(results) {
         var version        = results[0],
@@ -72,8 +71,7 @@ gulp.task('typescript', function() {
         .js.pipe(gulp.dest('app/'));
 });
 
-// TODO pre-tasks
-gulp.task('browserify', function() {
+gulp.task('browserify', ['copy-js', 'typescript'], function() {
     var entries = contentScript().then(function(defs) {
         if (!(Array.isArray(defs) && defs.length >= 1)) reject();
         return defs.reduce(function(prev, current) {
@@ -91,4 +89,4 @@ gulp.task('browserify', function() {
     });
 });
 
-gulp.task('default', ['copy-js', 'typescript', 'manifest']);
+gulp.task('default', ['manifest', 'browserify']);
