@@ -8,8 +8,15 @@ var gulp        = require('gulp'),
     exec        = require('child_process').exec,
     Promise     = require('es6-promise').Promise,
     typescript  = require('gulp-typescript'),
-    browserify  = require('browserify');
+    browserify  = require('browserify'),
+    zip         = require('gulp-zip');
 
+gulp.task('default', ['build', 'watch']);
+gulp.task('build', ['manifest', 'browserify']);
+
+// task: manifest
+// - generate version
+// - collect `content_scripts.part.json`
 gulp.task('manifest', ['_content_script_partfiles'], function() {
     return Promise.all([version(), contentScript()]).then(function(results) {
         var version        = results[0],
@@ -89,4 +96,23 @@ gulp.task('browserify', ['copy-js', 'typescript'], function() {
     });
 });
 
-gulp.task('default', ['manifest', 'browserify']);
+// task: zip
+// - pack `app` directory to a chrome extension
+gulp.task('zip', ['build'], function() {
+    var appName = new Promise(function(resolve, reject) {
+        fs.readFile('app/manifest.json', function(err, text) {
+            return err ? reject(err) : resolve(JSON.parse(text).name);
+        });
+    });
+    return Promise.all([ version(), appName ]).then(function(results) {
+        var version = results[0],
+            name    = results[1];
+        return gulp.src('app/**/*')
+            .pipe(zip(name + '-' + version + '.zip'))
+            .pipe(gulp.dest('releases'));
+    });
+});
+
+gulp.task('watch', function() {
+    // TODO
+});
