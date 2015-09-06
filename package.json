@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/pokutuna/chrome-pack-userjs/issues"
   },
-  "homepage": "https://github.com/pokutuna/chrome-pack-userjs"
+  "homepage": "https://github.com/pokutuna/chrome-pack-userjs",
+  "devDependencies": {
+    "browserify": "^11.0.1",
+    "gulp": "^3.9.0",
+    "gulp-typescript": "^2.8.2",
+    "zip": "^1.2.0"
+  }
 }
