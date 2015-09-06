@@ -1,0 +1,6 @@
+{
+    "matches": [
+        "https://github.com/*/chrome-pack-userjs"
+    ],
+    "js": ["sample4-use-lib-ts/sample4-use-lib-ts.js"]
+}
