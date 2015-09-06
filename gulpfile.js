@@ -1,14 +1,21 @@
-var gulp     = require('gulp'),
-    gutil    = require('gulp-util'),
-    editJson = require('gulp-json-editor'),
-    exec     = require('child_process').exec,
-    Promise  = require('es6-promise').Promise;
+var gulp        = require('gulp'),
+    gutil       = require('gulp-util'),
+    editJson    = require('gulp-json-editor'),
+    combineJson = require('gulp-jsoncombine'),
+    fs          = require('fs'),
+    exec        = require('child_process').exec,
+    Promise     = require('es6-promise').Promise;
 
 
-gulp.task('manifest', function() {
-    return version().then(function(version) {
+gulp.task('manifest', ['_content_script_partfiles'], function() {
+    return Promise.all([version(), contentScript()]).then(function(results) {
+        var version        = results[0],
+            contentScripts = results[1];
         return gulp.src('src/manifest.json')
-            .pipe(editJson({ version : version }))
+            .pipe(editJson({
+                version:         version,
+                content_scripts: contentScripts
+            }))
             .pipe(gulp.dest('app/'));
     });
 });
@@ -31,3 +38,20 @@ function version() {
         return version;
     });
 }
+
+function contentScript() {
+    return new Promise(function(resolve, reject) {
+        fs.readFile('app/tmp/content_scripts.json', function(err, text) {
+            return err ? reject(err) : resolve(JSON.parse(text));
+        });
+    });
+}
+
+gulp.task('_content_script_partfiles', function() {
+    return gulp.src('src/**/content_scripts.part.json')
+        .pipe(combineJson('content_scripts.json', function(data) {
+            var values = Object.keys(data).map(function(key) { return data[key]; });
+            return new Buffer(JSON.stringify(values));
+        }))
+        .pipe(gulp.dest('app/tmp/'));
+});
