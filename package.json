@@ -19,11 +19,13 @@
   "devDependencies": {
     "browserify": "^11.0.1",
     "es6-promise": "^3.0.2",
+    "event-stream": "^3.3.1",
     "gulp": "^3.9.0",
     "gulp-json-editor": "^2.2.1",
     "gulp-jsoncombine": "^1.0.2",
     "gulp-typescript": "^2.8.2",
     "gulp-util": "^3.0.6",
+    "vinyl-source-stream": "^1.1.0",
     "zip": "^1.2.0"
   }
 }

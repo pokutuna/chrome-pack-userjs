@@ -2,10 +2,13 @@ var gulp        = require('gulp'),
     gutil       = require('gulp-util'),
     editJson    = require('gulp-json-editor'),
     combineJson = require('gulp-jsoncombine'),
+    source      = require('vinyl-source-stream'),
+    es          = require('event-stream'),
     fs          = require('fs'),
     exec        = require('child_process').exec,
     Promise     = require('es6-promise').Promise,
-    typescript  = require('gulp-typescript');
+    typescript  = require('gulp-typescript'),
+    browserify  = require('browserify');
 
 
 gulp.task('manifest', ['_content_script_partfiles'], function() {
@@ -67,6 +70,25 @@ gulp.task('typescript', function() {
     return gulp.src('src/**/*.ts')
         .pipe(typescript(tsProject))
         .js.pipe(gulp.dest('app/'));
+});
+
+// TODO pre-tasks
+gulp.task('browserify', function() {
+    var entries = contentScript().then(function(defs) {
+        if (!(Array.isArray(defs) && defs.length >= 1)) reject();
+        return defs.reduce(function(prev, current) {
+            return prev.concat(current.js);
+        }, []);
+    });
+    return entries.then(function(files) {
+        var tasks = files.map(function(entry) {
+            return browserify({ entries: [entry], basedir: './app' })
+                .bundle()
+                .pipe(source(entry))
+                .pipe(gulp.dest('app/'));
+        });
+        return es.merge.apply(null, tasks);
+    });
 });
 
 gulp.task('default', ['copy-js', 'typescript', 'manifest']);
