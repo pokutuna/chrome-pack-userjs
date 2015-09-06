@@ -18,13 +18,13 @@ gulp.task('build', ['manifest', 'browserify']);
 // - generate version
 // - collect `content_scripts.part.json`
 gulp.task('manifest', ['_content_script_partfiles'], function() {
-    return Promise.all([version(), contentScript()]).then(function(results) {
-        var version        = results[0],
-            contentScripts = results[1];
+    return Promise.all([ version(), contentScripts() ]).then(function(results) {
+        var version     = results[0],
+            scriptParts = results[1];
         return gulp.src('src/manifest.json')
             .pipe(editJson({
-                version:         version,
-                content_scripts: contentScripts
+                version: version,
+                content_scripts: scriptParts
             }))
             .pipe(gulp.dest('app/'));
     });
@@ -49,7 +49,7 @@ function version() {
     });
 }
 
-function contentScript() {
+function contentScripts() {
     return new Promise(function(resolve, reject) {
         fs.readFile('app/tmp/content_scripts.json', function(err, text) {
             return err ? reject(err) : resolve(JSON.parse(text));
@@ -71,23 +71,25 @@ gulp.task('copy-js', function() {
         .pipe(gulp.dest('app/'));
 });
 
-var tsProject = typescript.createProject({ module: 'commonjs', sortOutput: true });
+var tsProject = typescript.createProject({ module: 'commonjs' });
 gulp.task('typescript', function() {
     return gulp.src('src/**/*.ts')
         .pipe(typescript(tsProject))
         .js.pipe(gulp.dest('app/'));
 });
 
+// task: browserify
+// - collect entry points each defined in content_scripts.part.json
+// - run browserify all entries
 gulp.task('browserify', ['copy-js', 'typescript'], function() {
-    var entries = contentScript().then(function(defs) {
-        if (!(Array.isArray(defs) && defs.length >= 1)) reject();
+    var entries = contentScripts().then(function(defs) {
         return defs.reduce(function(prev, current) {
-            return prev.concat(current.js);
+            return prev.concat(current['js']);
         }, []);
     });
     return entries.then(function(files) {
         var tasks = files.map(function(entry) {
-            return browserify({ entries: [entry], basedir: './app' })
+            return browserify({ entries: [entry], basedir: 'app/' })
                 .bundle()
                 .pipe(source(entry))
                 .pipe(gulp.dest('app/'));
@@ -96,12 +98,12 @@ gulp.task('browserify', ['copy-js', 'typescript'], function() {
     });
 });
 
-// task: zip
+// task: release
 // - pack `app` directory to a chrome extension
-gulp.task('zip', ['build'], function() {
+gulp.task('release', ['build'], function() {
     var appName = new Promise(function(resolve, reject) {
         fs.readFile('app/manifest.json', function(err, text) {
-            return err ? reject(err) : resolve(JSON.parse(text).name);
+            return err ? reject(err) : resolve(JSON.parse(text)['name']);
         });
     });
     return Promise.all([ version(), appName ]).then(function(results) {
@@ -114,5 +116,7 @@ gulp.task('zip', ['build'], function() {
 });
 
 gulp.task('watch', function() {
-    // TODO
+    gulp.watch('src/**/*.json', ['manifest']);
+    gulp.watch('src/**/*.ts',   ['browserify']);
+    gulp.watch('src/**/*.js',   ['browserify']);
 });
