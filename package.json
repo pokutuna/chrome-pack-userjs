@@ -1,0 +1,19 @@
+{
+  "name": "chrome-pack-userjs",
+  "version": "1.0.0",
+  "description": "example to pack userjs files to a chrome extension",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com/pokutuna/chrome-pack-userjs.git"
+  },
+  "author": "pokutuna",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pokutuna/chrome-pack-userjs/issues"
+  },
+  "homepage": "https://github.com/pokutuna/chrome-pack-userjs"
+}
